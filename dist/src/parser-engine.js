@@ -1,4 +1,7 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ParserEngine = void 0;
+// tslint:disable: no-parameter-reassignment
 /*=--------------------------------------------------------------=
 
  TSPath - Typescript Path Resolver
@@ -22,17 +25,15 @@
  the full license attached in LICENCE.md
 
 =----------------------------------------------------------------= */
-Object.defineProperty(exports, "__esModule", { value: true });
-let fs = require("fs");
-let path = require('path');
-let esprima = require("esprima");
-let escodegen = require("escodegen");
-let chalk = require("chalk");
+const fs = require("fs");
+const path = require("path");
+const esprima = require("esprima");
+const escodegen = require("escodegen");
+const chalk_1 = require("chalk");
 const utils_1 = require("./utils");
 const json_comment_stripper_1 = require("./json-comment-stripper");
 const project_options_1 = require("./project-options");
 const type_definitions_1 = require("./type-definitions");
-const type_definitions_2 = require("./type-definitions");
 const log = console.log;
 class ParserEngine {
     constructor() {
@@ -41,12 +42,12 @@ class ParserEngine {
         this.compactMode = true;
     }
     exit(code = 5) {
-        console.log("Terminating...");
+        log("Terminating...");
         process.exit(code);
     }
     setProjectPath(projectPath) {
         if (!utils_1.Utils.isEmpty(projectPath) && !this.validateProjectPath(projectPath)) {
-            log(chalk.red.bold("Project Path \"" + chalk.underline(projectPath) + "\" is invalid!"));
+            log(chalk_1.default.red.bold('Project Path "' + chalk_1.default.underline(projectPath) + '" is invalid!'));
             return false;
         }
         this.projectPath = projectPath;
@@ -69,7 +70,7 @@ class ParserEngine {
             result = false;
         }
         if (!fs.existsSync(configFile)) {
-            log("TypeScript Compiler Configuration file " + chalk.underline.bold(type_definitions_1.TS_CONFIG) + " is missing!");
+            log("TypeScript Compiler Configuration file " + chalk_1.default.underline.bold(type_definitions_1.TS_CONFIG) + " is missing!");
         }
         return result;
     }
@@ -78,10 +79,10 @@ class ParserEngine {
      * @returns {string}
      */
     readProjectName() {
-        let projectName = null;
-        let filename = path.resolve(this.projectPath, "package.json");
+        let projectName = "";
+        const filename = path.resolve(this.projectPath, "package.json");
         if (fs.existsSync(filename)) {
-            let json = require(filename);
+            const json = require(filename);
             projectName = json.name;
         }
         return projectName;
@@ -93,29 +94,37 @@ class ParserEngine {
         const PROCESS_TIME = "Operation finished in";
         console.time(PROCESS_TIME);
         if (!this.validateProjectPath(this.projectPath)) {
-            log(chalk.bold.red("Invalid project path"));
+            log(chalk_1.default.bold.red("Invalid project path"));
             this.exit(10);
         }
         this.projectOptions = this.readConfig();
-        let projectName = this.readProjectName();
+        const projectName = this.readProjectName();
         if (!utils_1.Utils.isEmpty(projectName)) {
-            log(chalk.yellow("Parsing project: ") + chalk.bold(projectName) + " " + chalk.underline(this.projectPath));
+            log(chalk_1.default.yellow("Parsing project: ") +
+                chalk_1.default.bold(projectName) +
+                " " +
+                chalk_1.default.underline(this.projectPath));
         }
         else {
-            log(chalk.yellow.bold("Parsing project at: ") + '"' + this.projectPath + '"');
+            log(chalk_1.default.yellow.bold("Parsing project at: ") + '"' + this.projectPath + '"');
         }
         this.appRoot = path.resolve(this.projectPath, this.projectOptions.baseUrl);
         this.distRoot = path.resolve(this.projectPath, this.projectOptions.outDir);
-        let fileList = new Array();
+        const fileList = new Array();
         this.walkSync(this.distRoot, fileList, ".js");
-        for (let i = 0; i < fileList.length; i++) {
-            let filename = fileList[i];
+        for (const filename of fileList) {
             this.processFile(filename);
         }
-        log(chalk.bold("Total files processed:"), this.nrFilesProcessed);
-        log(chalk.bold("Total paths processed:"), this.nrPathsProcessed);
+        /*
+        for (let i = 0; i < fileList.length; i++) {
+          const filename = fileList[i];
+          this.processFile(filename);
+        }
+        */
+        log(chalk_1.default.bold("Total files processed:"), this.nrFilesProcessed);
+        log(chalk_1.default.bold("Total paths processed:"), this.nrPathsProcessed);
         console.timeEnd(PROCESS_TIME);
-        log(chalk.bold.green("Project is prepared, now run it normally!"));
+        log(chalk_1.default.bold.green("Project is prepared, now run it normally!"));
     }
     /**
      *
@@ -124,7 +133,7 @@ class ParserEngine {
      * @returns {string}
      */
     getRelativePathForRequiredFile(sourceFilename, jsRequire) {
-        let options = this.projectOptions;
+        const options = this.projectOptions;
         for (let alias in options.pathMappings) {
             let mapping = options.pathMappings[alias];
             //TODO: Handle * properly
@@ -132,18 +141,18 @@ class ParserEngine {
             mapping = utils_1.Utils.stripWildcard(mapping);
             // 2018-06-02: Workaround for bug with same prefix Aliases e.g @db and @dbCore
             // Cut alias prefix for mapping comparison
-            let requirePrefix = jsRequire.substring(0, jsRequire.indexOf(path.sep));
-            if (requirePrefix == alias) {
+            const requirePrefix = jsRequire.substring(0, jsRequire.indexOf(path.sep));
+            if (requirePrefix === alias) {
                 let result = jsRequire.replace(alias, mapping);
                 utils_1.Utils.replaceDoubleSlashes(result);
                 result = utils_1.Utils.ensureTrailingPathDelimiter(result);
-                let absoluteJsRequire = path.join(this.distRoot, result);
-                let sourceDir = path.dirname(sourceFilename);
+                const absoluteJsRequire = path.join(this.distRoot, result);
+                const sourceDir = path.dirname(sourceFilename);
                 let relativePath = path.relative(sourceDir, absoluteJsRequire);
                 /* If the path does not start with .. it´ not a sub directory
                  * as in ../ or ..\ so assume it´ the same dir...
                  */
-                if (relativePath[0] != ".") {
+                if (relativePath[0] !== ".") {
                     relativePath = "./" + relativePath;
                 }
                 jsRequire = relativePath;
@@ -160,12 +169,12 @@ class ParserEngine {
      */
     processJsRequire(node, sourceFilename) {
         let resultNode = node;
-        let requireInJsFile = utils_1.Utils.safeGetAstNodeValue(node);
+        const requireInJsFile = utils_1.Utils.safeGetAstNodeValue(node);
         /* Only proceed if the "require" contains a full file path, not
          * single references like "inversify"
          */
         if (!utils_1.Utils.isEmpty(requireInJsFile) && utils_1.Utils.fileHavePath(requireInJsFile)) {
-            let relativePath = this.getRelativePathForRequiredFile(sourceFilename, requireInJsFile);
+            const relativePath = this.getRelativePathForRequiredFile(sourceFilename, requireInJsFile);
             resultNode = { type: "Literal", value: relativePath, raw: relativePath };
             this.nrPathsProcessed++;
         }
@@ -177,11 +186,11 @@ class ParserEngine {
      */
     processFile(filename) {
         this.nrFilesProcessed++;
-        let scope = this;
-        let inputSourceCode = fs.readFileSync(filename, type_definitions_2.FILE_ENCODING);
+        const scope = this;
+        const inputSourceCode = fs.readFileSync(filename, type_definitions_1.FILE_ENCODING);
         let ast = null;
         try {
-            ast = esprima.parse(inputSourceCode); //, { raw: true, tokens: true, range: true, comment: true });
+            ast = esprima.parseScript(inputSourceCode); //, { raw: true, tokens: true, range: true, comment: true });
         }
         catch (error) {
             console.log("Unable to parse file:", filename);
@@ -189,17 +198,17 @@ class ParserEngine {
             this.exit();
         }
         this.traverseSynTree(ast, this, function (node) {
-            if (node != undefined && node.type == "CallExpression" && node.callee.name == "require") {
+            if (node !== undefined && node.type === "CallExpression" && node.callee.name === "require") {
                 node.arguments[0] = scope.processJsRequire(node.arguments[0], filename);
             }
         });
-        let option = { comment: true, format: { compact: this.compactMode, quotes: '"' } };
-        let finalSource = escodegen.generate(ast, option);
+        const option = { comment: true, format: { compact: this.compactMode, quotes: '"' } };
+        const finalSource = escodegen.generate(ast, option);
         try {
             this.saveFileContents(filename, finalSource);
         }
         catch (error) {
-            log(chalk.bold.red("Unable to write file:"), filename);
+            log(chalk_1.default.bold.red("Unable to write file:"), filename);
             this.exit();
         }
     }
@@ -209,9 +218,10 @@ class ParserEngine {
      * @param fileContents
      */
     saveFileContents(filename, fileContents) {
-        let error = false;
-        fs.writeFileSync(filename, fileContents, type_definitions_2.FILE_ENCODING, error);
-        if (error) {
+        try {
+            fs.writeFileSync(filename, fileContents, type_definitions_1.FILE_ENCODING);
+        }
+        catch (err) {
             throw Error("Could not save file: " + filename);
         }
     }
@@ -220,19 +230,19 @@ class ParserEngine {
      * @param configFilename
      */
     readConfig(configFilename = type_definitions_1.TS_CONFIG) {
-        let fileName = path.resolve(this.projectPath, configFilename);
-        let fileData = fs.readFileSync(path.resolve(this.projectPath, fileName), type_definitions_2.FILE_ENCODING);
-        let jsonCS = new json_comment_stripper_1.JsonCommentStripper();
+        const fileName = path.resolve(this.projectPath, configFilename);
+        let fileData = fs.readFileSync(path.resolve(this.projectPath, fileName), type_definitions_1.FILE_ENCODING);
+        const jsonCS = new json_comment_stripper_1.JsonCommentStripper();
         fileData = jsonCS.stripComments(fileData);
         this.tsConfig = JSON.parse(fileData);
-        let compilerOpt = this.tsConfig.compilerOptions;
-        let reqFields = [];
+        const compilerOpt = this.tsConfig.compilerOptions;
+        const reqFields = {};
         reqFields["baseUrl"] = compilerOpt.baseUrl;
         reqFields["outDir"] = compilerOpt.outDir;
-        for (let key in reqFields) {
-            let field = reqFields[key];
+        for (const key in reqFields) {
+            const field = reqFields[key];
             if (utils_1.Utils.isEmpty(field)) {
-                log(chalk.red.bold("Missing required field:") + ' "' + chalk.bold.underline(key) + '"');
+                log(chalk_1.default.red.bold("Missing required field:") + ' "' + chalk_1.default.bold.underline(key) + '"');
                 this.exit(22);
             }
         }
@@ -246,13 +256,14 @@ class ParserEngine {
      */
     traverseSynTree(ast, scope, func) {
         func(ast);
-        for (let key in ast) {
+        for (const key in ast) {
             if (ast.hasOwnProperty(key)) {
-                let child = ast[key];
-                if (typeof child === 'object' && child !== null) {
+                const child = ast[key];
+                if (typeof child === "object" && child !== null) {
                     if (Array.isArray(child)) {
-                        child.forEach(function (ast) {
-                            scope.traverseSynTree(ast, scope, func);
+                        child.forEach(function (newAst) {
+                            //5
+                            scope.traverseSynTree(newAst, scope, func);
                         });
                     }
                     else {
@@ -268,7 +279,7 @@ class ParserEngine {
      * @returns {boolean}
      */
     matchExtension(fileExtension) {
-        if (utils_1.Utils.isEmpty(fileExtension) || this.fileFilter.length == 0)
+        if (utils_1.Utils.isEmpty(fileExtension) || this.fileFilter.length === 0)
             return false;
         return this.fileFilter.indexOf(fileExtension) > -1;
     }
@@ -280,26 +291,46 @@ class ParserEngine {
      * @returns {Array<string>}
      */
     walkSync(dir, filelist, fileExtension) {
-        let scope = this;
-        let files = fs.readdirSync(dir);
+        const scope = this;
+        const files = fs.readdirSync(dir);
         filelist = filelist || [];
         fileExtension = fileExtension === undefined ? "" : fileExtension;
-        for (let i = 0; i < files.length; i++) {
-            let file = files[i];
+        for (const file of files) {
             if (fs.statSync(path.join(dir, file)).isDirectory()) {
                 filelist = this.walkSync(path.join(dir, file), filelist, fileExtension);
             }
             else {
-                let tmpExt = path.extname(file);
-                if ((fileExtension.length > 0 && scope.matchExtension(fileExtension))
-                    || (fileExtension.length < 1)
-                    || (fileExtension == "*.*")) {
-                    let fullFilename = path.join(dir, file);
+                const tmpExt = path.extname(file);
+                if ((fileExtension.length > 0 && scope.matchExtension(tmpExt)) ||
+                    fileExtension.length < 1 ||
+                    fileExtension === "*.*") {
+                    const fullFilename = path.join(dir, file);
                     filelist.push(fullFilename);
                 }
             }
         }
+        /*
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+    
+          if (fs.statSync(path.join(dir, file)).isDirectory()) {
+            filelist = this.walkSync(path.join(dir, file), filelist, fileExtension);
+          } else {
+            const tmpExt = path.extname(file);
+    
+            if (
+              (fileExtension.length > 0 && scope.matchExtension(tmpExt)) ||
+              fileExtension.length < 1 ||
+              fileExtension === "*.*"
+            ) {
+              const fullFilename = path.join(dir, file);
+              filelist.push(fullFilename);
+            }
+          }
+        }
+        */
         return filelist;
     }
 }
 exports.ParserEngine = ParserEngine;
+//# sourceMappingURL=parser-engine.js.map

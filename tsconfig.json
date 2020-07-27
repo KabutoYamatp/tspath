@@ -1,20 +1,12 @@
 {
   "compilerOptions": {
-    "target": "es6",
     "module": "commonjs",
-    "outDir": "./dist",
-    "strict": false,
-    "baseUrl": "./",
-    "declaration": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "outDir": "dist",
+    "sourceMap": true,
+    "strict": true,
+    "target": "es2017"
   },
-  "include": [
-    "./",
-    "src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "compileOnSave": false
 }

@@ -24,70 +24,65 @@
 
  =----------------------------------------------------------------= */
 
-const pkg      = require('../package.json');
-let fs         = require("fs");
-let path       = require("path");
-let chalk      = require("chalk");
-let log        = console.log;
-let Confirm    = require('prompt-confirm');
-let yargs      = require("yargs").argv;
+const pkg = require("../package.json");
+import chalk from "chalk"
+import * as yargs from "yargs"
+const Confirm = require("prompt-confirm");
 
-import { ParserEngine }     from "./parser-engine";
+const log = console.log;
+const argv = yargs.argv;
+
+
+import { ParserEngine } from "./parser-engine";
 import { ParentFileFinder } from "./parent-file-finder";
-import { TS_CONFIG }        from "./type-definitions";
+import { TS_CONFIG } from "./type-definitions";
 
-
-export class TSPath {
-	private engine = new ParserEngine();
-
-	constructor() {
-		log(chalk.yellow("TSPath " + pkg.version));
-		let args = process.argv.slice(2);
-		let param = args[0];
-		let filter = ["js"];
-		let force: boolean = (yargs.force || yargs.f);
-		let projectPath = process.cwd();
-		let compactOutput = yargs.preserve ? false : true;
-		let findResult = ParentFileFinder.findFile(projectPath, TS_CONFIG);
-
-		let scope = this;
-
-		if (yargs.ext || yargs.filter) {
-			let argFilter = yargs.ext ? yargs.ext : yargs.filter;
-			filter = argFilter.split(",").map((ext) => {
-				return ext.replace(/\s/g, "");
-			});
-		}
-
-		if (filter.length === 0) {
-			log(chalk.bold.red("File filter missing!"));
-			process.exit(23);
-		}
-
-		this.engine.compactMode = compactOutput;
-		this.engine.setFileFilter(filter);
-
-		if (force && findResult.fileFound) {
-			scope.processPath(findResult.path);
-
-		} else if (findResult.fileFound) {
-			let confirm = new Confirm("Process project at: <"  + findResult.path +  "> ?")
-				.ask(function(answer) {
-					if (answer) {
-						scope.processPath(findResult.path);
-					}
-				});
-
-		} else {
-			log(chalk.bold("No project root found!"));
-		}
-	}
-
-	private processPath(projectPath: string) {
-		if (this.engine.setProjectPath(projectPath)) {
-			this.engine.execute();
-		}
+const engine = new ParserEngine();
+function processPath(projectPath: string) {
+	if (engine.setProjectPath(projectPath)) {
+	  engine.execute();
 	}
 }
 
-let tspath = new TSPath();
+function exist_string(val:any): val is string{
+	return val && typeof val === "string";
+}
+  
+
+export function TSpath() {
+  log(chalk.yellow("TSPath " + pkg.version));
+  let filter = ["js"];
+  const force: boolean = (!!argv.force || !!argv.f);
+  const projectPath = process.cwd();
+  const compactOutput = argv.preserve ? false : true;
+  const findResult = ParentFileFinder.findFile(projectPath, TS_CONFIG);
+  //Check existence of argv param filter
+  const argvParamFilter = argv.ext || argv.filter;
+  if (exist_string(argvParamFilter)) {
+	 filter = argvParamFilter.split(",").map((ext) => {
+      return ext.replace(/\s/g, "");
+    });
+  }
+
+  if (filter.length === 0) {
+    log(chalk.bold.red("File filter missing!"));
+    process.exit(23);
+  }
+
+  engine.compactMode = compactOutput;
+  engine.setFileFilter(filter);
+
+  if (force && findResult.fileFound) {
+    processPath(findResult.path);
+  } else if (findResult.fileFound) {
+    new Confirm("Process project at: <" + findResult.path + "> ?").ask(function (
+      answer:any
+    ) {
+      if (answer) {
+        processPath(findResult.path);
+      }
+    });
+  } else {
+    log(chalk.bold("No project root found!"));
+  }
+}

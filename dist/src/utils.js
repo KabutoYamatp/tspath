@@ -1,4 +1,5 @@
 "use strict";
+// tslint:disable: no-parameter-reassignment
 /*=--------------------------------------------------------------=
 
  TSPath - Typescript Path Resolver
@@ -23,7 +24,8 @@
 
  =----------------------------------------------------------------= */
 Object.defineProperty(exports, "__esModule", { value: true });
-let path = require("path");
+exports.Utils = void 0;
+const nodePath = require("path");
 class Utils {
     /**
      * Helper method used to safely get the value of an AST node
@@ -46,14 +48,15 @@ class Utils {
      * @returns {string}
      */
     static ensureTrailingPathDelimiter(searchPath) {
+        let retSearchPath = searchPath;
         if (Utils.isEmpty(searchPath)) {
             return;
         }
-        let pathSep = path.sep;
-        if (searchPath.endsWith(pathSep) == false) {
-            searchPath = searchPath + pathSep;
+        const pathSep = nodePath.sep;
+        if (retSearchPath.endsWith(pathSep) === false) {
+            retSearchPath = retSearchPath + pathSep;
         }
-        return searchPath;
+        return retSearchPath;
     }
     /**
      * Appends given value to a given path
@@ -92,7 +95,7 @@ class Utils {
      * @param filePath
      */
     static replaceDoubleSlashes(filePath) {
-        filePath = path.normalize(filePath);
+        filePath = nodePath.normalize(filePath);
     }
     /**
      * Converts EFBBBF (UTF-8 BOM) to FEFF (UTF-16 BOM)
@@ -110,7 +113,8 @@ class Utils {
      * @returns {boolean}
      */
     static fileHavePath(filename) {
-        return (filename !== path.basename(filename));
+        return (filename !== nodePath.basename(filename));
     }
 }
 exports.Utils = Utils;
+//# sourceMappingURL=utils.js.map

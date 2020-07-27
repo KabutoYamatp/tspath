@@ -3,13 +3,13 @@
   "version": "2.0.0",
   "description": "TypeScript Path Igniter resolves @paths specified in tsconfig",
   "scripts": {
+    "lint": "tslint --project tsconfig.json",
     "build": "tsc",
-    "test": "mocha -r ts-node/register test/**.*/test.ts",
-    "tspath": "node ./dist/src/tspath.js"
+    "tspath": "node ./dist/index.js"
   },
   "preferGlobal": true,
   "bin": {
-    "tspath": "./dist/tspath.js"
+    "tspath": "./dist/index.js"
   },
   "keywords": [
     "relative",
@@ -26,18 +26,22 @@
   },
   "license": "LGPL-2",
   "dependencies": {
-    "@types/node": "^8.0.25",
     "chalk": "^2.3.0",
     "escodegen": "^1.8.1",
     "esprima": "^4.0.0",
     "prompt-confirm": "^1.2.0",
-    "typescript": "^2.4.2",
     "yargs": "^11.0.0"
   },
   "devDependencies": {
     "@types/chai": "^4.0.4",
+    "@types/escodegen": "0.0.6",
+    "@types/esprima": "^4.0.2",
     "@types/mocha": "^2.2.42",
+    "@types/node": "^8.0.25",
+    "@types/yargs": "^15.0.5",
     "chai": "^4.1.2",
-    "mocha": "^3.5.0"
+    "mocha": "^3.5.0",
+    "tslint": "^6.1.2",
+    "typescript": "^3.9.7"
   }
 }

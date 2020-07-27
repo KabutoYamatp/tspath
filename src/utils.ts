@@ -1,3 +1,4 @@
+// tslint:disable: no-parameter-reassignment
 /*=--------------------------------------------------------------=
 
  TSPath - Typescript Path Resolver
@@ -22,7 +23,7 @@
 
  =----------------------------------------------------------------= */
 
-let path = require("path");
+import * as nodePath from "path"
 
 export class Utils {
 	/**
@@ -47,15 +48,16 @@ export class Utils {
 	 * @returns {string}
 	 */
 	public static ensureTrailingPathDelimiter(searchPath: string) {
+		let retSearchPath = searchPath;
 		if (Utils.isEmpty(searchPath)) {
 			return;
 		}
 
-		let pathSep = path.sep;
-		if (searchPath.endsWith(pathSep) == false) {
-			searchPath = searchPath + pathSep;
+		const pathSep = nodePath.sep;
+		if (retSearchPath.endsWith(pathSep) === false) {
+			retSearchPath = retSearchPath + pathSep;
 		}
-		return searchPath;
+		return retSearchPath;
 	}
 
 	/**
@@ -66,6 +68,7 @@ export class Utils {
 	 */
 	public static appendToPath(path: string, part: string, trailingDelim: boolean = true) {
 		Utils.ensureTrailingPathDelimiter(path);
+
 		path += part;
 
 		if (trailingDelim) {
@@ -78,7 +81,7 @@ export class Utils {
 	 * @param input
 	 * @returns {boolean}
 	 */
-	public static isEmpty(input): boolean {
+	public static isEmpty(input:any): boolean {
 		return (input === undefined || input === null || input === '');
 	}
 
@@ -100,7 +103,7 @@ export class Utils {
 	 * @param filePath
 	 */
 	static replaceDoubleSlashes(filePath: string) {
-		filePath = path.normalize(filePath);
+		filePath = nodePath.normalize(filePath);
 	}
 	/**
 	 * Converts EFBBBF (UTF-8 BOM) to FEFF (UTF-16 BOM)
@@ -120,6 +123,6 @@ export class Utils {
 	 * @returns {boolean}
 	 */
 	public static fileHavePath(filename: string): boolean {
-		return (filename !== path.basename(filename));
+		return (filename !== nodePath.basename(filename));
 	}
 }

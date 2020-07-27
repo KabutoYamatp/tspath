@@ -31,7 +31,7 @@ export class ProjectOptions {
 
 	//TODO: Support fallbacks
 	processMappings(mappings: any) {
-		for (var alias in mappings) {
+		for (const alias in mappings) {
 			this.pathMappings[alias] = mappings[alias][0]; // No support for fallbacks yet...
 		}
 	}
