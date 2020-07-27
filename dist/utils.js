@@ -25,21 +25,23 @@
  =----------------------------------------------------------------= */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Utils = void 0;
-const nodePath = require("path");
-class Utils {
+var nodePath = require("path");
+var Utils = /** @class */ (function () {
+    function Utils() {
+    }
     /**
      * Helper method used to safely get the value of an AST node
      * @param node
      * @returns {string}
      */
-    static safeGetAstNodeValue(node) {
+    Utils.safeGetAstNodeValue = function (node) {
         if (Utils.isEmpty(node) || Utils.isEmpty(node.value)) {
             return "";
         }
         else {
             return node.value;
         }
-    }
+    };
     /**
      * Cross platform method that verifies that the given path ends
      * with a path delimiter, NOTE that this method does no effort
@@ -47,74 +49,76 @@ class Utils {
      * @param searchPath
      * @returns {string}
      */
-    static ensureTrailingPathDelimiter(searchPath) {
-        let retSearchPath = searchPath;
+    Utils.ensureTrailingPathDelimiter = function (searchPath) {
+        var retSearchPath = searchPath;
         if (Utils.isEmpty(searchPath)) {
             return;
         }
-        const pathSep = nodePath.sep;
+        var pathSep = nodePath.sep;
         if (retSearchPath.endsWith(pathSep) === false) {
             retSearchPath = retSearchPath + pathSep;
         }
         return retSearchPath;
-    }
+    };
     /**
      * Appends given value to a given path
      * @param path
      * @param part
      * @param trailingDelim
      */
-    static appendToPath(path, part, trailingDelim = true) {
+    Utils.appendToPath = function (path, part, trailingDelim) {
+        if (trailingDelim === void 0) { trailingDelim = true; }
         Utils.ensureTrailingPathDelimiter(path);
         path += part;
         if (trailingDelim) {
             Utils.ensureTrailingPathDelimiter(path);
         }
-    }
+    };
     /**
      * Checks for unset input string
      * @param input
      * @returns {boolean}
      */
-    static isEmpty(input) {
+    Utils.isEmpty = function (input) {
         return (input === undefined || input === null || input === '');
-    }
+    };
     /**
      * Removes the trailing "*" from a string (if any)
      * @param path
      * @returns {string}
      */
-    static stripWildcard(path) {
+    Utils.stripWildcard = function (path) {
         if (path.endsWith("/*")) {
             path = path.substr(0, path.length - 2);
         }
         return path;
-    }
+    };
     /**
      * Replaces double slashes "//" (if any)
      * @param filePath
      */
-    static replaceDoubleSlashes(filePath) {
+    Utils.replaceDoubleSlashes = function (filePath) {
         filePath = nodePath.normalize(filePath);
-    }
+    };
     /**
      * Converts EFBBBF (UTF-8 BOM) to FEFF (UTF-16 BOM)
      * @param data
      */
-    static stripByteOrderMark(data) {
+    Utils.stripByteOrderMark = function (data) {
         if (data.charCodeAt(0) === 0xFEFF) {
             data = data.slice(1);
         }
         return data;
-    }
+    };
     /**
      * Checks if a given filename contains a search path
      * @param filename
      * @returns {boolean}
      */
-    static fileHavePath(filename) {
+    Utils.fileHavePath = function (filename) {
         return (filename !== nodePath.basename(filename));
-    }
-}
+    };
+    return Utils;
+}());
 exports.Utils = Utils;
 //# sourceMappingURL=utils.js.map

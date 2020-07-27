@@ -48,40 +48,40 @@ var JsonParserState;
     JsonParserState[JsonParserState["InObject"] = 3] = "InObject";
     JsonParserState[JsonParserState["InQuote"] = 4] = "InQuote";
 })(JsonParserState || (JsonParserState = {}));
-class JsonCommentStripper {
-    constructor() {
+var JsonCommentStripper = /** @class */ (function () {
+    function JsonCommentStripper() {
         this.currState = JsonParserState.None;
         this.prevtState = JsonParserState.None;
     }
-    stripComments(data) {
+    JsonCommentStripper.prototype.stripComments = function (data) {
         return this.parse(data);
-    }
-    isQuote(char) {
+    };
+    JsonCommentStripper.prototype.isQuote = function (char) {
         return char === '"' || char === "'";
-    }
-    setState(state) {
+    };
+    JsonCommentStripper.prototype.setState = function (state) {
         if (state !== this.currState) {
             this.prevtState = this.currState;
             this.currState = state;
         }
-    }
-    inState(state) {
+    };
+    JsonCommentStripper.prototype.inState = function (state) {
         return this.currState === state;
-    }
-    setPrevState() {
+    };
+    JsonCommentStripper.prototype.setPrevState = function () {
         this.setState(this.prevtState);
-    }
-    inComment() {
+    };
+    JsonCommentStripper.prototype.inComment = function () {
         return (this.inState(JsonParserState.InLineComment) || this.inState(JsonParserState.InBlockComment));
-    }
-    parse(data) {
+    };
+    JsonCommentStripper.prototype.parse = function (data) {
         //let lineNum = 1;
         //let linePos = 1;
         //let prevChar = "";
-        let currChar = "";
-        let aheadChar = "";
-        let chunk = "";
-        for (let i = 0; i < data.length; i++) {
+        var currChar = "";
+        var aheadChar = "";
+        var chunk = "";
+        for (var i = 0; i < data.length; i++) {
             //prevChar = currChar;
             currChar = data[i];
             aheadChar = data[i + 1];
@@ -120,7 +120,8 @@ class JsonCommentStripper {
                 chunk += currChar;
         }
         return chunk;
-    }
-}
+    };
+    return JsonCommentStripper;
+}());
 exports.JsonCommentStripper = JsonCommentStripper;
 //# sourceMappingURL=json-comment-stripper.js.map

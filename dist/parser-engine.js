@@ -25,46 +25,47 @@ exports.ParserEngine = void 0;
  the full license attached in LICENCE.md
 
 =----------------------------------------------------------------= */
-const fs = require("fs");
-const path = require("path");
-const esprima = require("esprima");
-const escodegen = require("escodegen");
-const chalk_1 = require("chalk");
-const utils_1 = require("./utils");
-const json_comment_stripper_1 = require("./json-comment-stripper");
-const project_options_1 = require("./project-options");
-const type_definitions_1 = require("./type-definitions");
-const log = console.log;
-class ParserEngine {
-    constructor() {
+var fs = require("fs");
+var path = require("path");
+var esprima = require("esprima");
+var escodegen = require("escodegen");
+var chalk_1 = require("chalk");
+var utils_1 = require("./utils");
+var json_comment_stripper_1 = require("./json-comment-stripper");
+var project_options_1 = require("./project-options");
+var type_definitions_1 = require("./type-definitions");
+var log = console.log;
+var ParserEngine = /** @class */ (function () {
+    function ParserEngine() {
         this.nrFilesProcessed = 0;
         this.nrPathsProcessed = 0;
         this.compactMode = true;
     }
-    exit(code = 5) {
+    ParserEngine.prototype.exit = function (code) {
+        if (code === void 0) { code = 5; }
         log("Terminating...");
         process.exit(code);
-    }
-    setProjectPath(projectPath) {
+    };
+    ParserEngine.prototype.setProjectPath = function (projectPath) {
         if (!utils_1.Utils.isEmpty(projectPath) && !this.validateProjectPath(projectPath)) {
             log(chalk_1.default.red.bold('Project Path "' + chalk_1.default.underline(projectPath) + '" is invalid!'));
             return false;
         }
         this.projectPath = projectPath;
         return true;
-    }
+    };
     /**
      * Set the accepted file extensions, ensure leading . (dot)
      * @param {Array<string>} filter
      */
-    setFileFilter(filter) {
-        this.fileFilter = filter.map((e) => {
+    ParserEngine.prototype.setFileFilter = function (filter) {
+        this.fileFilter = filter.map(function (e) {
             return !e.startsWith(".") ? "." + e : e;
         });
-    }
-    validateProjectPath(projectPath) {
-        let result = true;
-        let configFile = utils_1.Utils.ensureTrailingPathDelimiter(projectPath);
+    };
+    ParserEngine.prototype.validateProjectPath = function (projectPath) {
+        var result = true;
+        var configFile = utils_1.Utils.ensureTrailingPathDelimiter(projectPath);
         configFile += type_definitions_1.TS_CONFIG;
         if (!fs.existsSync(projectPath)) {
             result = false;
@@ -73,32 +74,32 @@ class ParserEngine {
             log("TypeScript Compiler Configuration file " + chalk_1.default.underline.bold(type_definitions_1.TS_CONFIG) + " is missing!");
         }
         return result;
-    }
+    };
     /**
      * Attempts to read the name property form package.json
      * @returns {string}
      */
-    readProjectName() {
-        let projectName = "";
-        const filename = path.resolve(this.projectPath, "package.json");
+    ParserEngine.prototype.readProjectName = function () {
+        var projectName = "";
+        var filename = path.resolve(this.projectPath, "package.json");
         if (fs.existsSync(filename)) {
-            const json = require(filename);
+            var json = require(filename);
             projectName = json.name;
         }
         return projectName;
-    }
+    };
     /**
      * Parse project and resolve paths
      */
-    execute() {
-        const PROCESS_TIME = "Operation finished in";
+    ParserEngine.prototype.execute = function () {
+        var PROCESS_TIME = "Operation finished in";
         console.time(PROCESS_TIME);
         if (!this.validateProjectPath(this.projectPath)) {
             log(chalk_1.default.bold.red("Invalid project path"));
             this.exit(10);
         }
         this.projectOptions = this.readConfig();
-        const projectName = this.readProjectName();
+        var projectName = this.readProjectName();
         if (!utils_1.Utils.isEmpty(projectName)) {
             log(chalk_1.default.yellow("Parsing project: ") +
                 chalk_1.default.bold(projectName) +
@@ -110,9 +111,10 @@ class ParserEngine {
         }
         this.appRoot = path.resolve(this.projectPath, this.projectOptions.baseUrl);
         this.distRoot = path.resolve(this.projectPath, this.projectOptions.outDir);
-        const fileList = new Array();
+        var fileList = new Array();
         this.walkSync(this.distRoot, fileList, ".js");
-        for (const filename of fileList) {
+        for (var _i = 0, fileList_1 = fileList; _i < fileList_1.length; _i++) {
+            var filename = fileList_1[_i];
             this.processFile(filename);
         }
         /*
@@ -125,30 +127,30 @@ class ParserEngine {
         log(chalk_1.default.bold("Total paths processed:"), this.nrPathsProcessed);
         console.timeEnd(PROCESS_TIME);
         log(chalk_1.default.bold.green("Project is prepared, now run it normally!"));
-    }
+    };
     /**
      *
      * @param sourceFilename
      * @param jsRequire - require in javascript source "require("jsRequire")
      * @returns {string}
      */
-    getRelativePathForRequiredFile(sourceFilename, jsRequire) {
-        const options = this.projectOptions;
-        for (let alias in options.pathMappings) {
-            let mapping = options.pathMappings[alias];
+    ParserEngine.prototype.getRelativePathForRequiredFile = function (sourceFilename, jsRequire) {
+        var options = this.projectOptions;
+        for (var alias in options.pathMappings) {
+            var mapping = options.pathMappings[alias];
             //TODO: Handle * properly
             alias = utils_1.Utils.stripWildcard(alias);
             mapping = utils_1.Utils.stripWildcard(mapping);
             // 2018-06-02: Workaround for bug with same prefix Aliases e.g @db and @dbCore
             // Cut alias prefix for mapping comparison
-            const requirePrefix = jsRequire.substring(0, jsRequire.indexOf(path.sep));
+            var requirePrefix = jsRequire.substring(0, jsRequire.indexOf(path.sep));
             if (requirePrefix === alias) {
-                let result = jsRequire.replace(alias, mapping);
+                var result = jsRequire.replace(alias, mapping);
                 utils_1.Utils.replaceDoubleSlashes(result);
                 result = utils_1.Utils.ensureTrailingPathDelimiter(result);
-                const absoluteJsRequire = path.join(this.distRoot, result);
-                const sourceDir = path.dirname(sourceFilename);
-                let relativePath = path.relative(sourceDir, absoluteJsRequire);
+                var absoluteJsRequire = path.join(this.distRoot, result);
+                var sourceDir = path.dirname(sourceFilename);
+                var relativePath = path.relative(sourceDir, absoluteJsRequire);
                 /* If the path does not start with .. it´ not a sub directory
                  * as in ../ or ..\ so assume it´ the same dir...
                  */
@@ -160,35 +162,35 @@ class ParserEngine {
             }
         }
         return jsRequire;
-    }
+    };
     /**
      * Processes the filename specified in require("filename")
      * @param node
      * @param sourceFilename
      * @returns {any}
      */
-    processJsRequire(node, sourceFilename) {
-        let resultNode = node;
-        const requireInJsFile = utils_1.Utils.safeGetAstNodeValue(node);
+    ParserEngine.prototype.processJsRequire = function (node, sourceFilename) {
+        var resultNode = node;
+        var requireInJsFile = utils_1.Utils.safeGetAstNodeValue(node);
         /* Only proceed if the "require" contains a full file path, not
          * single references like "inversify"
          */
         if (!utils_1.Utils.isEmpty(requireInJsFile) && utils_1.Utils.fileHavePath(requireInJsFile)) {
-            const relativePath = this.getRelativePathForRequiredFile(sourceFilename, requireInJsFile);
+            var relativePath = this.getRelativePathForRequiredFile(sourceFilename, requireInJsFile);
             resultNode = { type: "Literal", value: relativePath, raw: relativePath };
             this.nrPathsProcessed++;
         }
         return resultNode;
-    }
+    };
     /**
      * Extracts all the requires from a single file and processes the paths
      * @param filename
      */
-    processFile(filename) {
+    ParserEngine.prototype.processFile = function (filename) {
         this.nrFilesProcessed++;
-        const scope = this;
-        const inputSourceCode = fs.readFileSync(filename, type_definitions_1.FILE_ENCODING);
-        let ast = null;
+        var scope = this;
+        var inputSourceCode = fs.readFileSync(filename, type_definitions_1.FILE_ENCODING);
+        var ast = null;
         try {
             ast = esprima.parseScript(inputSourceCode); //, { raw: true, tokens: true, range: true, comment: true });
         }
@@ -202,8 +204,8 @@ class ParserEngine {
                 node.arguments[0] = scope.processJsRequire(node.arguments[0], filename);
             }
         });
-        const option = { comment: true, format: { compact: this.compactMode, quotes: '"' } };
-        const finalSource = escodegen.generate(ast, option);
+        var option = { comment: true, format: { compact: this.compactMode, quotes: '"' } };
+        var finalSource = escodegen.generate(ast, option);
         try {
             this.saveFileContents(filename, finalSource);
         }
@@ -211,54 +213,55 @@ class ParserEngine {
             log(chalk_1.default.bold.red("Unable to write file:"), filename);
             this.exit();
         }
-    }
+    };
     /**
      * Saves file contents to disk
      * @param filename
      * @param fileContents
      */
-    saveFileContents(filename, fileContents) {
+    ParserEngine.prototype.saveFileContents = function (filename, fileContents) {
         try {
             fs.writeFileSync(filename, fileContents, type_definitions_1.FILE_ENCODING);
         }
         catch (err) {
             throw Error("Could not save file: " + filename);
         }
-    }
+    };
     /**
      * Read and parse the TypeScript configuration file
      * @param configFilename
      */
-    readConfig(configFilename = type_definitions_1.TS_CONFIG) {
-        const fileName = path.resolve(this.projectPath, configFilename);
-        let fileData = fs.readFileSync(path.resolve(this.projectPath, fileName), type_definitions_1.FILE_ENCODING);
-        const jsonCS = new json_comment_stripper_1.JsonCommentStripper();
+    ParserEngine.prototype.readConfig = function (configFilename) {
+        if (configFilename === void 0) { configFilename = type_definitions_1.TS_CONFIG; }
+        var fileName = path.resolve(this.projectPath, configFilename);
+        var fileData = fs.readFileSync(path.resolve(this.projectPath, fileName), type_definitions_1.FILE_ENCODING);
+        var jsonCS = new json_comment_stripper_1.JsonCommentStripper();
         fileData = jsonCS.stripComments(fileData);
         this.tsConfig = JSON.parse(fileData);
-        const compilerOpt = this.tsConfig.compilerOptions;
-        const reqFields = {};
+        var compilerOpt = this.tsConfig.compilerOptions;
+        var reqFields = {};
         reqFields["baseUrl"] = compilerOpt.baseUrl;
         reqFields["outDir"] = compilerOpt.outDir;
-        for (const key in reqFields) {
-            const field = reqFields[key];
+        for (var key in reqFields) {
+            var field = reqFields[key];
             if (utils_1.Utils.isEmpty(field)) {
                 log(chalk_1.default.red.bold("Missing required field:") + ' "' + chalk_1.default.bold.underline(key) + '"');
                 this.exit(22);
             }
         }
         return new project_options_1.ProjectOptions(compilerOpt);
-    }
+    };
     /**
      *
      * @param ast
      * @param scope
      * @param func
      */
-    traverseSynTree(ast, scope, func) {
+    ParserEngine.prototype.traverseSynTree = function (ast, scope, func) {
         func(ast);
-        for (const key in ast) {
+        for (var key in ast) {
             if (ast.hasOwnProperty(key)) {
-                const child = ast[key];
+                var child = ast[key];
                 if (typeof child === "object" && child !== null) {
                     if (Array.isArray(child)) {
                         child.forEach(function (newAst) {
@@ -272,17 +275,17 @@ class ParserEngine {
                 }
             }
         }
-    }
+    };
     /**
      * Match a given file extension with the configured extensions
      * @param {string} fileExtension - ".xxx" or "xxx
      * @returns {boolean}
      */
-    matchExtension(fileExtension) {
+    ParserEngine.prototype.matchExtension = function (fileExtension) {
         if (utils_1.Utils.isEmpty(fileExtension) || this.fileFilter.length === 0)
             return false;
         return this.fileFilter.indexOf(fileExtension) > -1;
-    }
+    };
     /**
      * Recursively walking a directory structure and collect files
      * @param dir
@@ -290,21 +293,22 @@ class ParserEngine {
      * @param fileExtension
      * @returns {Array<string>}
      */
-    walkSync(dir, filelist, fileExtension) {
-        const scope = this;
-        const files = fs.readdirSync(dir);
+    ParserEngine.prototype.walkSync = function (dir, filelist, fileExtension) {
+        var scope = this;
+        var files = fs.readdirSync(dir);
         filelist = filelist || [];
         fileExtension = fileExtension === undefined ? "" : fileExtension;
-        for (const file of files) {
+        for (var _i = 0, files_1 = files; _i < files_1.length; _i++) {
+            var file = files_1[_i];
             if (fs.statSync(path.join(dir, file)).isDirectory()) {
                 filelist = this.walkSync(path.join(dir, file), filelist, fileExtension);
             }
             else {
-                const tmpExt = path.extname(file);
+                var tmpExt = path.extname(file);
                 if ((fileExtension.length > 0 && scope.matchExtension(tmpExt)) ||
                     fileExtension.length < 1 ||
                     fileExtension === "*.*") {
-                    const fullFilename = path.join(dir, file);
+                    var fullFilename = path.join(dir, file);
                     filelist.push(fullFilename);
                 }
             }
@@ -330,7 +334,8 @@ class ParserEngine {
         }
         */
         return filelist;
-    }
-}
+    };
+    return ParserEngine;
+}());
 exports.ParserEngine = ParserEngine;
 //# sourceMappingURL=parser-engine.js.map

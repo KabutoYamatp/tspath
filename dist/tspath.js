@@ -25,16 +25,16 @@
  =----------------------------------------------------------------= */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TSpath = void 0;
-const pkg = require("../package.json");
-const chalk_1 = require("chalk");
-const yargs = require("yargs");
-const Confirm = require("prompt-confirm");
-const log = console.log;
-const argv = yargs.argv;
-const parser_engine_1 = require("./parser-engine");
-const parent_file_finder_1 = require("./parent-file-finder");
-const type_definitions_1 = require("./type-definitions");
-const engine = new parser_engine_1.ParserEngine();
+var pkg = require("../package.json");
+var chalk_1 = require("chalk");
+var yargs = require("yargs");
+var Confirm = require("prompt-confirm");
+var log = console.log;
+var argv = yargs.argv;
+var parser_engine_1 = require("./parser-engine");
+var parent_file_finder_1 = require("./parent-file-finder");
+var type_definitions_1 = require("./type-definitions");
+var engine = new parser_engine_1.ParserEngine();
 function processPath(projectPath) {
     if (engine.setProjectPath(projectPath)) {
         engine.execute();
@@ -45,15 +45,15 @@ function exist_string(val) {
 }
 function TSpath() {
     log(chalk_1.default.yellow("TSPath " + pkg.version));
-    let filter = ["js"];
-    const force = (!!argv.force || !!argv.f);
-    const projectPath = process.cwd();
-    const compactOutput = argv.preserve ? false : true;
-    const findResult = parent_file_finder_1.ParentFileFinder.findFile(projectPath, type_definitions_1.TS_CONFIG);
+    var filter = ["js"];
+    var force = (!!argv.force || !!argv.f);
+    var projectPath = process.cwd();
+    var compactOutput = argv.preserve ? false : true;
+    var findResult = parent_file_finder_1.ParentFileFinder.findFile(projectPath, type_definitions_1.TS_CONFIG);
     //Check existence of argv param filter
-    const argvParamFilter = argv.ext || argv.filter;
+    var argvParamFilter = argv.ext || argv.filter;
     if (exist_string(argvParamFilter)) {
-        filter = argvParamFilter.split(",").map((ext) => {
+        filter = argvParamFilter.split(",").map(function (ext) {
             return ext.replace(/\s/g, "");
         });
     }

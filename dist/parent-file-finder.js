@@ -33,19 +33,25 @@
  =---------------------------------------------------------------= */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ParentFileFinder = exports.FileFindResult = void 0;
-const fs = require("fs");
-const nodePath = require("path");
-const utils_1 = require("./utils");
-const type_definitions_1 = require("./type-definitions");
-class FileFindResult {
-    constructor(fileFound = false, path = "", result = "") {
+var fs = require("fs");
+var nodePath = require("path");
+var utils_1 = require("./utils");
+var type_definitions_1 = require("./type-definitions");
+var FileFindResult = /** @class */ (function () {
+    function FileFindResult(fileFound, path, result) {
+        if (fileFound === void 0) { fileFound = false; }
+        if (path === void 0) { path = ""; }
+        if (result === void 0) { result = ""; }
         this.fileFound = fileFound;
         this.path = path;
         this.result = result;
     }
-}
+    return FileFindResult;
+}());
 exports.FileFindResult = FileFindResult;
-class ParentFileFinder {
+var ParentFileFinder = /** @class */ (function () {
+    function ParentFileFinder() {
+    }
     /**
      * File finder which traverses parent directories
      * until a given filename is found.
@@ -53,17 +59,17 @@ class ParentFileFinder {
      * @param filename
      * @returns {FileFindResult}
      */
-    static findFile(startPath, filename) {
-        const result = new FileFindResult();
-        const sep = nodePath.sep;
-        const parts = startPath.split(sep);
-        let tmpStr = sep;
-        for (let i = 0; i < parts.length; i++) {
+    ParentFileFinder.findFile = function (startPath, filename) {
+        var result = new FileFindResult();
+        var sep = nodePath.sep;
+        var parts = startPath.split(sep);
+        var tmpStr = sep;
+        for (var i = 0; i < parts.length; i++) {
             tmpStr = nodePath.resolve(tmpStr, parts[i]);
             tmpStr = utils_1.Utils.ensureTrailingPathDelimiter(tmpStr);
             parts[i] = tmpStr;
         }
-        for (let i = parts.length - 1; i > 0; i--) {
+        for (var i = parts.length - 1; i > 0; i--) {
             tmpStr = parts[i];
             filename = nodePath.resolve(tmpStr, type_definitions_1.TS_CONFIG);
             if (fs.existsSync(filename)) {
@@ -74,7 +80,8 @@ class ParentFileFinder {
             }
         }
         return result;
-    }
-}
+    };
+    return ParentFileFinder;
+}());
 exports.ParentFileFinder = ParentFileFinder;
 //# sourceMappingURL=parent-file-finder.js.map
