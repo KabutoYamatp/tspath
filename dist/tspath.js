@@ -1,12 +1,12 @@
 #! /usr/bin/env node
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const pkg = require('../package.json');
+const pkg = require("../package.json");
 let fs = require("fs");
 let path = require("path");
 let chalk = require("chalk");
 let log = console.log;
-let Confirm = require('prompt-confirm');
+let Confirm = require("prompt-confirm");
 let yargs = require("yargs").argv;
 const parser_engine_1 = require("./parser-engine");
 const parent_file_finder_1 = require("./parent-file-finder");
@@ -18,7 +18,7 @@ class TSPath {
         let args = process.argv.slice(2);
         let param = args[0];
         let filter = ["js"];
-        let force = (yargs.force || yargs.f);
+        let force = yargs.force || yargs.f;
         let projectPath = process.cwd();
         let compactOutput = yargs.preserve ? false : true;
         let findResult = parent_file_finder_1.ParentFileFinder.findFile(projectPath, type_definitions_1.TS_CONFIG);
@@ -39,8 +39,7 @@ class TSPath {
             scope.processPath(findResult.path);
         }
         else if (findResult.fileFound) {
-            let confirm = new Confirm("Process project at: <" + findResult.path + "> ?")
-                .ask(function (answer) {
+            let confirm = new Confirm("Process project at: <" + findResult.path + "> ?").ask(function (answer) {
                 if (answer) {
                     scope.processPath(findResult.path);
                 }
